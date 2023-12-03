@@ -1,0 +1,150 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+wd <- '/Users/antonaleynikov/Desktop/FX proj'
+setwd(wd)
+```
+
+```{r}
+library('data.table')
+library("vars")
+library('tsDyn')
+library('forecast')
+```
+```{r}
+countries <- c("BEL",   "CAN",  "FRA",  "DEU",  "ITA",  "JPN",  "NLD",  "SWE",  "CHE",  "GBR",  "USA")
+dt <- read.csv(file = 'G10_rates_nom_real_diff.csv')
+dt <- data.table(dt)
+columns <- colnames(dt)
+dt
+```
+
+
+```{r}
+get_country_dt <- function(country, dt){
+  date <- 'Last.Date.of.Month'
+  log_nominal_fx <- paste0("Log.nominal.USD.to." , country)
+  log_diff_fx <- paste0("Nominal.Diff.USD.to." , country)
+  log_rer_demeaned <- paste0("Real.Chg.to.12.M.Avg.USD.to." , country)
+  country_infl <- paste0(country, '.INFL')
+  domestic_infl <- "USA.INFL"
+  country_ir <- paste0(country, '.IR')
+  domestic_ir <- "USA.IR"
+  infl_diff <- dt[, ..country_infl] - dt[, ..domestic_infl]
+  ir_diff <- dt[, ..country_ir] - dt[, ..domestic_ir]
+  
+  mask <- c(date, log_nominal_fx, log_diff_fx, log_rer_demeaned)
+  subselected_data <- dt[, ..mask]
+  subselected_data[, 'INFL.diff' := infl_diff]
+  subselected_data[, 'IR.diff' := ir_diff]
+  subselected_data 
+}
+country <- countries[1]
+dt_BEL <- get_country_dt(country, dt)
+dt_BEL
+```
+
+
+```{r}
+get_var_fcast <- function(dt){
+  var_mod <- VAR(dt, p = 1, type = 'none')
+  var_fcast <- predict(var_mod, 1)
+  var_fcast$fcst[[1]][1]
+}
+
+roll_var_fcast <- function(dt){
+  nrows_train <- dt[Last.Date.of.Month < 2012, .N]
+  nrows <- dt[,.N]
+  var_fcasts <- c()
+  for (i in nrows_train : nrows - 1){
+    start <- i - nrows_train + 1
+    var_fcast <- get_var_fcast(dt[start:i, -1])
+    var_fcasts <- append(var_fcasts, var_fcast)
+  }
+  var_fcasts <- var_fcasts[-1]
+  rets <- cbind(dt[(nrows_train + 1):.N,c(1)], var_fcasts + dt[(nrows_train + 1):.N,c(6)])
+  names(rets)[2] <- paste0("Returns_", country)
+  rets
+}
+
+rets <- roll_var_fcast(dt_BEL)
+```
+```{r}
+rets <- roll_var_fcast(dt_BEL)
+
+for (i in 2:(length(countries) - 1)){
+  country <- countries[i]
+  dt_country <- get_country_dt(country, dt)
+  rets_country <- roll_var_fcast(dt_country)
+  rets <- merge(rets, rets_country, by = 'Last.Date.of.Month')
+}
+
+rets <- data.table(rets)
+var_rets <- rets[,-1][, rowMeans(.SD), .SDcols = -1]
+var_rets <- data.table(cbind(rets[, 1], var_rets))
+var_rets
+```
+```{r}
+tvecm_mat <- cbind(dt_BEL[, -c(1:3)], dt_BEL[, 3])
+
+get_tvecm_fcast <- function(dt){
+  ## fit TVECM with rer as ECT
+  tvecm_mod <- TVECM(dt, beta = list(exact = c(0, 0, 0)), lag = 1, nthresh = 1, include = 'none', plot = FALSE)
+  ## extract parameters, coefs
+  lag <- tvecm_mod$lag
+  k <- tvecm_mod$k
+  include <- tvecm_mod$include
+  B <- tvecm_mod$coeffmat  
+  Thresh <- getTh(tvecm_mod)
+  nthresh <- tvecm_mod$model.specific$nthresh
+  # get starting point
+  original.data <- tvecm_mod$model[,1:k, drop=FALSE]
+  starting <-   tail(original.data,lag + 1)
+  innov <- matrix(0, nrow=1, ncol=k)  
+  # get forecast
+  tvecm_fcast <- TVECM.sim(B=as.matrix(B), lag=lag, n=1, beta = c(0,0,0) ,
+                 starting=as.matrix(starting), innov=innov, include=include, 
+                 Thresh=Thresh, nthresh=nthresh)
+  tvecm_fcast[4]
+}
+
+roll_tvecm_fcast <- function(dt){
+  nrows_train <- dt[Last.Date.of.Month < 2012, .N]
+  nrows <- dt[,.N]
+  tvecm_fcasts <- c()
+  tvecm_mat <- cbind(dt[, -c(1:3)], dt[, 3])
+  for (i in nrows_train : nrows - 1){
+    start <- i - nrows_train + 1
+    tvecm_fcast <- get_var_fcast(tvecm_mat[start:i, -1])
+    tvecm_fcasts <- append(tvecm_fcasts, tvecm_fcast)
+  }
+  tvecm_fcasts <- tvecm_fcasts[-1]
+  rets <- cbind(dt[(nrows_train + 1):.N,c(1)], tvecm_fcasts + dt[(nrows_train + 1):.N,c(6)])
+  names(rets)[2] <- paste0("Returns_", country)
+  rets
+}
+```
+
+
+```{r}
+rets <- roll_tvecm_fcast(dt_BEL)
+
+for (i in 2:(length(countries) - 1)){
+  country <- countries[i]
+  dt_country <- get_country_dt(country, dt)
+  rets_country <- roll_tvecm_fcast(dt_country)
+  rets <- merge(rets, rets_country, by = 'Last.Date.of.Month')
+}
+
+rets <- data.table(rets)
+tvecm_rets <- rets[,-1][, rowMeans(.SD), .SDcols = -1]
+tvecm_rets <- data.table(cbind(rets[, 1], tvecm_rets))
+tvecm_rets
+```
