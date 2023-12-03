@@ -1,0 +1,71 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{Econ_mods}
+\author{anton.alley }
+\date{December 2023}
+
+\usepackage[dvips]{graphicx}
+\usepackage{latexsym}
+\usepackage{epsf}
+\usepackage{epsfig}
+\usepackage{color}
+\usepackage{subcaption}
+\usepackage{amsmath} 
+\usepackage{amssymb}
+\usepackage{amsxtra}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{pdfpages}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage[english,russian]{babel}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdfpagemode=FullScreen,
+}
+\usepackage[style=ieee,backend=biber]{biblatex}
+\catcode`~ = 13 \def~{{\raise.17ex\hbox{$\scriptstyle\sim$}}}
+
+\begin{document}
+
+\maketitle
+
+\section{VAR model}
+
+VAR model is an extension of a classical univariate model to a multivariate case by framing the considered set of variables into vectors. Following the original paper, the VAR with lag equal to 1 and the respective variable vector $y_t = [\Delta e_t, \pi^{*}_t - \pi_t, i^{*}_t - i_t, q_t - \bar{q}]^t$ has the following specification:
+
+\begin{equation}
+    y_t = Ay_{t-1} + \epsilon_t
+\end{equation}
+
+where A is a time-invariant ($4 \times 4$) coefficients matrix, $\epsilon_t$ - zero-mean i.i.d. ($4 \times 1$) error vector with a fixed covariance matrix. 
+
+Note that this specification is vulnerable to autocorrelatedness of the variables, thus the estimation can be performed adequately only on the differenced series, as in our case. The series are also assumed to be stationary. The coefficient matrix captures the cross relationships between the variables through the off-diagonal terms.
+
+\section{TVECM}
+https://www.overleaf.com/project/656b6fa9507b6e6ecb973210#
+TVECM is an extension of the error-correction version of VAR model. Before adressing the threshold VECM, we describe the classical VECM. 
+
+Keeping our vector of variables $y_t$ the vector autoregressive model with error correction term (VECM) and lag equal 1 has the following specification:
+
+\begin{equation}
+\Delta y_t = \Pi y_{t-1} + \Gamma\Delta y_{t-1} + \epsilon_t 
+\end{equation}
+
+where $\epsilon_t$ are zero-mean, independent error terms. The model assumes that each series is integrated of order one, i.e. $y_{it}$ ~ $I(1), i = 1, ... , 4$. Under this assumption of cointegration we can find a stationary linear combination of  $y_{it}$, i.e. $\beta^t y_{it}$ ~ $I(0)$. Thus (2) can be rewritten according as 
+
+\begin{equation}
+\Delta y_t = \alpha\beta^ty_{t-1} + \Gamma\Delta y_{t-1} + \epsilon_t 
+\end{equation}
+
+where $\beta$ is a $1 \times 4$ vector of cointegration vector and $\alpha$ is a $4 \times 1$ loading vector. The impact of lagged values of $X_{it}$ are characterised by $\Gamma_i$, $i = 1,...,k$ $4 \times 4$ matrix. Note that here we follow the suggestion of the original paper that assumes a unique cointegrating relationship with $q_t - \bar{q}$ being the cointegrating variable, thus the $\beta$ and $\alpha$ are treated as vectors, even though generaly they represent matrices with size dependent on the number of cointegrating relationships. 
+
+In essence VECM is a model that implies the existence of a long-run stationary relationship between the variables determined by the cointegrating vector, while at the same time allowing for short-run deviations from the stationary path described by the $\Gamma$ matrix. The threshold version of VECM assumes multiple stationary regimes for the same stationary long-run path, thus allowing for a non-linear long-run relation modelling. We follow the original paper methodology assuming the presence of 2 regimes. 
+
+\end{document}
