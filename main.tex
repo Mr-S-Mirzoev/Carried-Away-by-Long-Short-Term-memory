@@ -2,10 +2,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage[toc]{appendix}
 
+\usepackage{csvsimple}
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{setspace}
+\usepackage{siunitx} % For rounding
 \usepackage{titlesec}
 
 \geometry{a4paper, margin=1in}
@@ -57,19 +59,7 @@ Furthermore, the aftermath of the 2007–2008 global financial crisis has reshap
 
 A significant development in the literature is the integration of machine learning techniques to enhance carry trade return prediction. Gu et al. (2020) ~\cite{gu2020empirical} demonstrated the ability of machine learning to capture nonlinear interactions between predictors, opening new avenues for empirical asset pricing. In particular, the application of Long Short-Term Memory (LSTM) networks, a type of recurrent neural network, has gained prominence for time series forecasting in economic settings \cite{wang2021machine}.
 
-\subsection{Application of LSTM Networks}
-
-This paper contributes to the literature by introducing LSTM networks to predict carry trade returns. LSTM networks, initially developed by Hochreiter and Schmidhuber (1997), have the unique ability to memorize long-term data patterns, optimizing explanatory factors and data length. The analysis is conducted on a monthly dataset spanning G10 currencies between 1990 and 2017, revealing that LSTM networks outperform traditional models regarding average return, Sharpe ratio, and gain/loss ratio.
-
-\subsection{Post-Crisis Carry Trade Returns}
-
-The findings of this paper indicate a deterioration in carry trade returns after the 2007–2008 global financial crisis, consistent with the trend observed in interest rate differentials shrinking to near zero \cite{accominotti2019currency}. This provides supportive evidence that excess carry trade returns may be influenced by long-term changes in interest rate differentials, aligning with the UIP hypothesis.
-
-\subsection{Comparison and Contribution}
-
-In comparison with commonly used models such as random walk, vector autoregression (VAR), threshold vector error correction model (TECM), and traditional recurrent neural networks (RNN), LSTM networks demonstrate superior performance in forecasting carry trade returns. The results contribute to the literature by showcasing the potential of LSTM networks to improve predictability and reduce risk in carry trade portfolios \cite{davis2020economic}.
-
-Future research may explore the applicability of LSTM networks in other economic settings and further investigate the nuanced features of carry trade returns, especially in the context of evolving market conditions post-financial crisis.
+In comparison with commonly used models such as vector autoregression (VAR), threshold vector error correction model (TECM), and traditional recurrent neural networks (RNN), LSTM networks demonstrate superior performance in forecasting carry trade returns. The results contribute to the literature by showcasing the potential of LSTM networks to improve predictability and reduce risk in carry trade portfolios \cite{davis2020economic}.
 
 
 \section{Methodology}
@@ -78,7 +68,7 @@ In this section, we detail the methodology employed in forecasting carry trade r
 
 \subsection{Dataset}
 
-The dataset used in this study spans from 1990 to 2017 and includes monthly data for 10 major currencies. These currencies are the focal point of our analysis, with exchange rate and one-month risk-free interest rate data sourced from Datastream. The consumer price index data for G10 countries is sourced from FRED Economic Data to capture the inflation dynamics. It's important to note that all assessed countries operate under a floating exchange rate regime and allow free capital mobility.
+The dataset used in this study spans from 1990 to 2019 and includes monthly data for 11 member countries of G10\footnote{The group was extended by Switzerland in 1964 but didn't change its name, thus the mixup between 10 and 11.}: USA, Canada, Japan, Sweden, Switzerland, United Kingdom, Belgium, France, Germany, Italy and the Netherlands. It is worth noting that some of them switched to EURO in 1999, and we had to incorporate this in the dataset, too. These currencies are the focal point of our analysis, with exchange rate and one-month risk-free interest rate data sourced from Datastream. The consumer price index data for G10 countries is sourced from FRED Economic Data to capture the inflation dynamics. It's important to note that all assessed countries operate under a floating exchange rate regime and allow free capital mobility.
 
 \subsection{Carry Trade Return Estimation}
 
@@ -96,11 +86,11 @@ where \(\Delta q_{t+1}\) is the stationary component of the real exchange rate d
 
 We employ \hyperref[appx:lstm]{LSTM} networks, a recurrent neural network (\hyperref[appx:rnn]{RNN}), for carry trade return forecasting. The LSTM networks incorporate memory cells and gating mechanisms, enabling them to capture long-term dependencies in the data.
 
-For comparison, we consider traditional linear models such as the random walk, vector auto-regression (\hyperref[appx:var]{VAR}), and the threshold vector error correction model (\hyperref[appx:tecm]{TECM}). Additionally, we include a degenerated RNN model by shutting down the memory cell gate structure to assess the impact of memory cells in the LSTM architecture.
+For comparison, we consider traditional linear models such as vector auto-regression (\hyperref[appx:var]{VAR}), and the threshold vector error correction model (\hyperref[appx:tecm]{TECM}). Additionally, we include a degenerated RNN model by shutting down the memory cell gate structure to assess the impact of memory cells in the LSTM architecture.
 
 \subsection{Model Comparison}
 
-To assess the performance of the forecasting models, we conduct a thorough comparison based on various metrics, including mean returns, standard deviations, skewness, kurtosis, Sharpe ratios, gain/loss ratios, Diebold-Mariano tests, and out-of-sample \(R^2\). The comparison spans three rolling windows: 2012–2015, 2013–2016, and 2014–2017.
+To assess the performance of the forecasting models, we conduct a thorough comparison based on various metrics, including mean returns, standard deviations, skewness, kurtosis, Sharpe ratios, gain/loss ratios. The comparison spans four rolling windows: 2012–2015, 2013–2016, 2014–2017 and 2015-2018. The first three are the same as Wang et al. paper, and the further one is new.
 
 This detailed analysis aims to provide insights into the effectiveness of the LSTM approach compared to traditional linear and threshold regression models in forecasting carry trade returns over the specified period.
 
@@ -109,44 +99,117 @@ This detailed analysis aims to provide insights into the effectiveness of the LS
 
 \subsection{Exchange Rate Predictions}
 
-In this section, we present the predictions of our models for the exchange rates of G10 currencies without the US. Figure \ref{fig:lstm_predictions} shows the LSTM model's predictions, and Figure \ref{fig:rnn_predictions} displays the RNN model's predictions.
+In this section, we present the predictions of our models for the exchange rates of G10 currencies without the US. Figure \ref{figure:lstm_predictions} shows the LSTM model's predictions, and Figure \ref{figure:rnn_predictions} displays the RNN model's predictions. Note that the log-returns scale is non-uniform to see the fluctuations better, and the diverges are generally not as significant as they may seem from visual inspection.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.8\textwidth]{fig/lstm_exchange_rate_predictions.png}
+    \includegraphics[width=0.8\textwidth]{figure/lstm_exchange_rate_predictions.png}
     \caption{LSTM Exchange Rate Predictions}
-    \label{fig:lstm_predictions}
+    \label{figure:lstm_predictions}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.8\textwidth]{fig/rnn_exchange_rate_predictions.png}
+    \includegraphics[width=0.8\textwidth]{figure/rnn_exchange_rate_predictions.png}
     \caption{RNN Exchange Rate Predictions}
-    \label{fig:rnn_predictions}
+    \label{figure:rnn_predictions}
 \end{figure}
 
-As observed in the figures, the LSTM model generally performed well in estimating the level and capturing the long-term trend of the time series as well as short-term changes. However, it struggled with sudden jumps, failing to accurately predict these abrupt changes. On the other hand, the RNN model exhibited challenges in capturing both the long-term trend and short-term fluctuations, with notable difficulties in predicting jumps.
+As observed in the figures, the LSTM model generally performed well in estimating the level and capturing the long-term trend of the time series and short-term changes. However, it struggled with sudden jumps, failing to predict these abrupt changes accurately. On the other hand, the RNN model exhibited challenges in capturing both the long-term trend and short-term fluctuations, with notable difficulties in predicting jumps.
 
+\clearpage  % Ensure the figure and content appear on the same page
 
+\subsection{Comparison on 1/N strategy}
 
-\subsection{Wang}
+\subsubsection{Results for 2012-07-31 to 2015-12-31}
 
-Present the results of the LSTM model in forecasting carry trade returns.
-Compare these results with the findings of Wang et al. (2021) ~\cite{wang2021machine}.
-Highlight any significant differences or improvements observed with LSTM.
+\begin{table}[h]
+  \centering
+  \csvautotabular{table/result_2012-07-31_2015-12-31.csv}
+  \caption{Results for the period 2012-07-31 to 2015-12-31}
+  \label{tab:results_2012-07-31_2015-12-31}
+\end{table}
 
-\section{Discussion}
+\subsubsection{Results for 2013-01-31 to 2016-12-31}
 
-The limitations in predicting jumps in both machine learning models may suggest that additional data could enhance the models' performance. Apart from the features used, such as 'Log-nominal exchange rate', 'Real Change to 12-M Average exchange rate', 'Inflation' and 'Interest Rate,' incorporating monthly realised volatility for each currency might have provided valuable information to help both RNN and LSTM models better capture abrupt changes in exchange rates.
+\begin{table}[h]
+  \centering
+  \csvautotabular{table/result_2013-01-31_2016-12-31.csv}
+  \caption{Results for the period 2013-01-31 to 2016-12-31}
+  \label{tab:results_2013-01-31_2016-12-31}
+\end{table}
 
-Interpret the results and discuss the implications for carry trade strategies.
-Address the deterioration in excess carry trade returns post the 2007–2008 global financial crisis.
-Consider the potential implications for uncovered interest rate parity in the long run.
+\subsubsection{Results for 2014-01-31 to 2017-12-31}
+
+\begin{table}[h]
+  \centering
+  \csvautotabular{table/result_2014-01-31_2017-12-31.csv}
+  \caption{Results for the period 2014-01-31 to 2017-12-31}
+  \label{tab:results_2014-01-31_2017-12-31}
+\end{table}
+
+\clearpage  % Ensure the figure and content appear on the same page
+
+\subsubsection{Results for 2015-01-31 to 2018-12-31}
+
+\begin{table}[h]
+  \centering
+  \csvautotabular{table/result_2015-01-31_2018-12-31.csv}
+  \caption{Results for the period 2015-01-31 to 2018-12-31}
+  \label{tab:results_2015-01-31_2018-12-31}
+\end{table}
+
+\section{Analysis of the results}
+
+The performance of all models across different periods shows consistently negative results in terms of log returns, absolute returns, and various performance metrics. The Sharpe ratios are particularly alarming, indicating significant underperformance compared to a risk-free rate. The Gain/Loss Ratio also suggests a lack of positive returns.
+
+Possible reasons for such poor performance include inadequate model complexity, inappropriate parameter tuning, and the absence of crucial features in the input data. Since we performed cross-validation for ML-based data to fine-tune parameters more accurately, we may see that the reason is that we oversimplified the market model. If we were to include more market metrics and possibly some popular stock indices in the given country, it could have helped us assess the data better and develop a more sophisticated and better-performing model. 
+
+The highly negative skewness and kurtosis values also highlight the models' struggle to capture extreme market events and sudden changes. The limitations in predicting jumps in machine learning and econometric models may also suggest that additional data could enhance the models' performance. Apart from the features used, such as 'Log-nominal exchange rate', 'Real Change to 12-M Average exchange rate', 'Inflation' and 'Interest Rate,' incorporating monthly realised volatility for each currency might have provided valuable information to help both RNN and LSTM models better capture abrupt changes in exchange rates.
+
+Further investigation into incorporating additional relevant features might improve the models' ability to capture market dynamics and enhance overall performance.
+
+\subsection{Delve deeper into TVECM dominance}
+
+It is clear that despite not being that much better than the other models, TVECM is the best out of the worst. And while the provided data doesn't offer specific insights into why TVECM outperformed other models, we can make general observations based on the presented metrics. It's important to note that these are speculative explanations, and a more detailed analysis would require examining the model specifications, data characteristics, and additional information.
+
+\textbf{Long-Term Dynamics:} TVECM (Time-Varying Error Correction Model) is designed to capture time-varying long-term relationships in a system. If the underlying market dynamics during the specified periods had significant time-varying components that TVECM could effectively model, it might have an advantage in predicting returns.
+
+\textbf{Adaptability to Structural Changes:} TVECM is known for its ability to adapt to structural changes in the data. If there were fundamental shifts or changes in market behaviour during the analysed periods, TVECM might have been more effective in adjusting to these changes than VAR, LSTM, or RNN.
+
+\textbf{Data Characteristics:} TVECM may perform well when dealing with cointegrated time series and capturing equilibrium relationships between variables. TVECM could leverage these relationships for better forecasting if the market data exhibited strong cointegration patterns.
+
+\textbf{Parameter Sensitivity:} The performance of models like VAR, LSTM, and RNN heavily depends on parameter tuning. If these models were not correctly tuned for the specific characteristics of the financial data or the hyperparameters were not optimised, it could lead to suboptimal performance.
+
+\textbf{Model Complexity:} TVECM might have balanced capturing complex relationships and avoiding overfitting. In situations where simpler models outperform more complex ones due to limited data or noise, TVECM's relatively more uncomplicated structure could have been an advantage.
+
+\subsection{Comparison with Wang}
+
+In examining the performance of the LSTM model relative to TVECM, RNN, and VAR, several noteworthy trends emerge. 
+
+\subsubsection{LSTM vs. TVECM}
+
+Contrary to the findings in Wang et al.'s study, our analysis indicates that TVECM outperformed LSTM across the considered time periods. This discrepancy may arise from differences in model specifications, data characteristics, or specific economic conditions prevailing during the analysed periods.
+
+\subsubsection{Consistent Superiority over RNN and VAR}
+
+While LSTM did not outperform TVECM, it demonstrated consistent superiority over RNN and VAR. This aligns with broader trends observed in Wang et al.'s study, where LSTM tended to outperform simpler models such as RNN and VAR.
+
+\subsubsection{Performance Dynamics Over Time}
+
+A crucial aspect of the analysis involves examining how LSTM's performance varied over different time periods. Interestingly, LSTM performed better than TVECM as we proceeded further away from the data on which our model was trained. Since all the models performed generally severely, this may only imply that TVECM degenerates faster than LSTM.
+
+\subsubsection{Realised Returns at the Currency Pair Level}
+
+Although the provided data lacks specific information on realised returns at the currency pair level, exploring this aspect could offer deeper insights into the factors influencing LSTM's performance, especially when models suggest conflicting strategies.
 
 \section{Conclusion}
-Summarise the key findings of the research.
-Discuss the broader implications for forex market efficiency and carry trade strategies.
-Suggest avenues for future research in this area.
+
+This paper contributes to the literature by introducing LSTM networks to predict carry trade returns. LSTM networks, initially developed by Hochreiter and Schmidhuber (1997), have the unique ability to memorise long-term data patterns, optimising explanatory factors and data length. The analysis is conducted on a monthly dataset spanning G10 currencies between 1990 and 2019, revealing that LSTM networks underperformed traditional models regarding average return, Sharpe ratio, and gain/loss ratio, which is different from Wang et al. findings.
+
+The findings of this paper indicate a deterioration in carry trade returns after the 2007–2008 global financial crisis, consistent with the trend observed in interest rate differentials shrinking to near zero \cite{accominotti2019currency}, and in our case to even negative long-term returns. This provides supportive evidence that excess carry trade returns may be influenced by long-term changes in interest rate differentials, aligning with the UIP hypothesis.
+
+The observed underperformance of LSTM during the 2015-2018 period prompts a closer look at long-term trends, potential structural changes, and shifts in market dynamics during that specific timeframe. However, this includes deep macroeconomic analysis, the exploration of the applicability of LSTM networks in other economic settings, and further investigating the nuanced features of carry trade returns, especially in the context of evolving market conditions post-financial crisis, which may be a sound basis for future research.
 
 % Specify the bibliography style and file
 \bibliographystyle{unsrt}
@@ -175,13 +238,13 @@ The information flow within an LSTM can be outlined as follows:
 
 \end{enumerate}
 
-Figure \ref{fig:lstm_structure} illustrates an LSTM network's structure, showcasing the information flow through the gates and the memory cell.
+Figure \ref{figure:lstm_structure} illustrates an LSTM network's structure, showcasing the information flow through the gates and the memory cell.
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.8\textwidth]{fig/lstm.png}
+  \includegraphics[width=0.8\textwidth]{figure/lstm.png}
   \caption{Structure of a Long Short-Term Memory (LSTM) Network}
-  \label{fig:lstm_structure}
+  \label{figure:lstm_structure}
 \end{figure}
 
 LSTMs have demonstrated superior performance in capturing complex patterns and dependencies in sequential data, making them valuable in various machine-learning applications.
