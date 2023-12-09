@@ -1,0 +1,3 @@
+# Paper on LSTM application for carry-trade
+
+**Carry trade**, a risky arbitrage strategy exploiting interest rate differentials between two currencies, challenges foreign exchange market efficiency. This research project builds upon the work of Wang et al. (2021) ~\cite{wang2021machine}, which employed long short-term memory (LSTM) networks to forecast carry trade returns. Using a data set spanning 1990 to 2017 for 11 countries, members of G10, the study found that LSTM models underperformed traditional threshold regression models based on simple economic fundamentals. Additionally, the research revealed a deterioration in excess carry trade returns after the 2007–2008 global financial crisis, suggesting a potential impact on the uncovered interest rate parity.
