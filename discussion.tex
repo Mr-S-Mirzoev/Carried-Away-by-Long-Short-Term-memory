@@ -1,0 +1,81 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usetheme{Madrid}
+
+\title{Exploring Leverage, Sentiment and Inversion Effects on the Dynamics of Implied Volatility}
+
+\subtitle{Discussion}
+
+\author[Z.~Tang,~Y.Song \and A.~Jacob]{Zifeng Tang, Yunfei Song, André Jacob}
+\institute[ETH/UZH]{ETH Zürich, University of Zürich}
+\date{\today}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}{Context}
+    \begin{itemize}
+        \item Problem: Dynamics of implied volatility in S\&P 500 options.
+        \item Significance: Reflects market's expectations, sentiment, liquidity, and macroeconomic shifts.
+        \item Approach: XGBoost and LightGBM models outperform traditional neural network-based methods.
+        \item Further analysis reveals the influence of leverage, sentiment, and inversion effects on implied volatility.
+        \item Introduction of the $HWRTI(n_1, n_2, V_0, r_0)$ econometric model for clearer insights.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Contribution}
+    \begin{itemize}
+        \item Introduction of 7 models: Hull-White analytic model (HW), Neural Network 3/4-Feature model (NN-3/4), XGBoost 3/4-Feature model (XGBoost-3/4), LightGBM 3/4-Feature model (LGBM-3/4).
+        \item Development of adaptive analytical models (HWR, HWT, HWRT, HWRTI) based on Hull's framework, incorporating rotation, translation, sentiment, and inversion effects to enhance understanding of implied volatility movements.
+        \item Quantification of feature importance scores by XGBoost and LightGBM models, providing insights into the influence of various features on implied volatility.
+        \item Discovery and exploration of three pivotal effects impacting implied volatility movements: Leverage Effect, Sentiment Effect, and Inversion Effect, contributing to a deeper understanding of the nuanced relationships between market factors and implied volatility.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Contribution (Contd.)}
+    \begin{itemize}
+        \item Demonstration of the negative correlation between asset returns and implied volatility changes for both call and put options, with the correlation diminishing as time to maturity increases.
+        \item Unveiling the Sentiment Effect, where the slope of the $r - \Delta(\sigma_{imp})$ line for call and put options changes with the rise of the VIX, indicating shifts in market risk expectations and demand for options.
+        \item Identification and analysis of the Inversion Effect, observed with higher asset returns leading to increased demand for call options and a flattening or reversal of the $r - \Delta(\sigma_{imp})$ line slope, impacting the Sentiment Effect.
+        \item Validation and robustness testing of models against various scenarios involving option moneyness and type.
+        \item Future directions include the incorporation of k-fold cross-validation for model optimisation and expanding research scope by considering additional features for a more comprehensive analysis of implied volatility dynamics.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Criticism: Page 7}
+    \begin{itemize}
+        \item Lack of Specificity: Universal Approximation Theorem for a \textbf{specific architecture} doesn't necessarily hold. It would be beneficial to provide a more detailed and concrete formulation of the UAT criteria, making it easier to assess the success of the proposed architecture. It could be the case that the chosen model isn't the best when it comes to approximation of the researched function
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Criticism: Pages 21 - 22}
+    \begin{itemize}
+        \item Unsupported Dependence: The paper asserts a dependence between the Volatility Index (VIX) and returns \textbf{without} adequate \textbf{justification} or supporting evidence. It is crucial to provide a robust rationale or empirical support for this relationship to enhance the credibility of the analysis. Also, the choice of VIX isn't optimal since it is related to implied volatility, leading to causality issues. A better choice for dependency exploration could be news sentiment.
+
+        \item Sentiment and inversion effect break-point choice: The paper suggests picking the break-point using the smallest MSE on the validation sample. Using \textbf{established structural break tests} (Chow test, Wald test, etc.) would be better. Compared to simply picking the smallest MSE, these tests provide statistical significance of the tested break-point.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Criticism: Page 23}
+    \begin{itemize}
+        
+        \item Hyper-parameter Domain Choice: Paper uses an iteration over hyper-parameters \textbf{without} a clear \textbf{theoretical justification for narrowing the parameter space} $(n_1, n_2)$. It is crucial to provide a sound theoretical basis for the chosen hyper-parameter values to ensure the robustness of the model.
+        
+        \item VIX persistence treatment: VIX is included as a level variable in the regression, overlooking its dependency on previous periods during turbulence. VIX \textbf{is known to be persistent during turbulent market regimes} and anti-persistent elsewhere. To account for that, either an appropriate separate specification for VIX (AR(1), etc.) or the first differences of VIX can be used.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Criticism: Page 23}
+    \begin{itemize}
+        
+        \item Hyper-parameter Domain Choice: Paper uses an iteration over hyper-parameters \textbf{without} a clear \textbf{theoretical justification for narrowing the parameter space} $(n_1, n_2)$. It is crucial to provide a sound theoretical basis for the chosen hyper-parameter values to ensure the robustness of the model.
+        
+        \item VIX persistence treatment: VIX is included as a level variable in the regression, overlooking its dependency on previous periods during turbulence. VIX \textbf{is known to be persistent during turbulent market regimes} and anti-persistent elsewhere. To account for that, either an appropriate separate specification for VIX (AR(1), etc.) or the first differences of VIX can be used.
+    \end{itemize}
+\end{frame}
+
+
+\end{document}
